@@ -4,7 +4,7 @@ Created on Thu Jun 24 07:05:55 2021
 
 @author: sunil
 """
-
+# Importing libraries
 
 import cv2
 from tensorflow.keras.models import load_model
@@ -14,11 +14,11 @@ import numpy as np
 from tensorflow.keras.preprocessing import image
 
 
-
+# Loading model
 
 model = load_model("aslr.h5")
 
-
+# Reciving input from webcam
 
 cap = cv2.VideoCapture(0)
 
@@ -31,18 +31,18 @@ while True:
     x2 = (frame.shape[1])-10
     y2 = int(0.5*frame.shape[1])
     
-    cv2.rectangle(frame, (x1-1,y1-1), (x2+1,y2+1), (255,0,0),1)
+    cv2.rectangle(frame, (x1-1,y1-1), (x2+1,y2+1), (255,0,0),1)   # creating rectangel fot roi
     
     
-    roi = frame[y1:y2, x1:x2]
+    roi = frame[y1:y2, x1:x2]   # 'roi' stands for region of interest to extract a particular frame from webcam input
     
     
-    roi = cv2.resize(roi, (64,64))
-    roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-    _,test_image = cv2.threshold(roi, 155, 255, cv2.THRESH_BINARY)
+    roi = cv2.resize(roi, (64,64))   # resizing roi to trained model images size
+    roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)   # converting input to B&W
+    _,test_image = cv2.threshold(roi, 130, 255, cv2.THRESH_BINARY)   # applying threshhold
 
     
-    result = model.predict(test_image.reshape(1,64,64,1))   #(1,64,64,3)
+    result = model.predict(test_image.reshape(1,64,64,1))   #(1,64,64,3)   # predicting values
     
     prediction = {
         "one" : result[0][0],
@@ -89,14 +89,15 @@ while True:
     
     predictions = sorted(prediction.items(), key = operator.itemgetter(1), reverse = True)
     
+    # predicting values
     
-    cv2.putText(frame, predictions[0][0], (x1+100,y2+30), cv2.FONT_HERSHEY_PLAIN, 1, (0,255,255), 1)
+    cv2.putText(frame, predictions[0][0], (x1+100,y2+30), cv2.FONT_HERSHEY_PLAIN, 1, (0,255,255), 1)   # printing result text over frame
     
-    cv2.imshow("test_image", test_image)
-    cv2.imshow("frame", frame)
+    cv2.imshow("test_image", test_image)   # showing frames
+    cv2.imshow("frame", frame)    # showing frames
+     
     
-    
-    if cv2.waitKey(10) & 0xFF == 27:
+    if cv2.waitKey(10) & 0xFF == 27:   # esc key to terminate program
         break
        
 cap.release()
